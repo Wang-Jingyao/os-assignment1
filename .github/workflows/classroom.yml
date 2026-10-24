@@ -1,0 +1,53 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: sdww0/sustech-os-lab:latest
+      options: --device=/dev/kvm --privileged
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: File test
+      id: file-test
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: File test
+        setup-command: ''
+        command: make check_file
+        timeout: 5
+        max-score: 30
+    - name: Guard test
+      id: guard-test
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Guard test
+        setup-command: ''
+        command: make check_guard
+        timeout: 5
+        max-score: 30
+    - name: callback
+      id: callback
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: callback
+        setup-command: ''
+        command: make check_kernel_callback
+        timeout: 5
+        max-score: 40
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        FILE-TEST_RESULTS: "${{steps.file-test.outputs.result}}"
+        GUARD-TEST_RESULTS: "${{steps.guard-test.outputs.result}}"
+        CALLBACK_RESULTS: "${{steps.callback.outputs.result}}"
+      with:
+        runners: file-test,guard-test,callback
