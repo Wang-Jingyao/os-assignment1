@@ -20,9 +20,9 @@ impl Slot {
             return None;
         }
 
-        self.number_slot.fetch_update(Ordering::Relaxed, |remaining| {
+        self.number_slot.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |remaining| {
             if remaining >= number_slot {
-                Some(remaining - number)
+                Some(remaining - number_slot)
             } else {
                 None
             }
