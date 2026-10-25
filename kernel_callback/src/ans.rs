@@ -35,7 +35,7 @@ pub fn handle_syscall(user_context: &mut UserContext, process: &Arc<Process>) {
 }
 
 pub fn handle_exception(user_context: &mut UserContext, _process: &Arc<Process>) {
-    ulet exception = user_context
+    let exception = user_context
         .take_exception()
         .expect("Missing user exception information");
 
